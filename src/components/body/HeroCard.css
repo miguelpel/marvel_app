@@ -1,0 +1,39 @@
+.App_hero_card {
+    border: 2px solid black;
+    margin-bottom: 5px;
+    height: 150px;
+    display: flex;
+    padding: 10px;
+}
+
+.App_hero_card_thumbnail {
+    min-height: 20px;
+    margin-right: 10px;
+}
+
+.App_hero_card_infos {
+    min-height: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.App_hero_card_infos h4 {
+    margin: 0;
+    padding: 0;
+}
+
+.App_hero_card_infos p {
+    max-height: 100px;
+    text-overflow: ellipsis;
+}
+
+.App_hero_card_infos button {
+    font-family: 'ComicSans';
+    font-size: 0.8em;
+    color: white;
+    background-color: #28336d;
+    border: 2px solid black;
+    padding: 5px 10px;
+    box-shadow: 3px 3px black;
+    width: 100px;
+}
