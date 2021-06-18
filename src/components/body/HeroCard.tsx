@@ -12,7 +12,9 @@ const HeroCard = ({hero}: Props) => {
         <div className="App_hero_card_infos">
             <h4>{hero.name}</h4>
             <p>{hero.description}</p>
-            <button>See details</button>
+            <button>
+                See details
+            </button>
         </div>
     </div>
   );

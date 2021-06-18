@@ -22,31 +22,23 @@ const App = () => {
 
   const url = `${baseUrl}${query}${auth}`;
 
-  //let heroes: any | undefined;
-
   const [data, setData] = useState({});
    
     useEffect(() => {
       fetch(url)
       .then(response => response.json())
       .then(data => {
+
+        // available:
         // data.data.offset;
         // data.data.limit;
         // data.dara.total;
         // data.data.count;
         // data.data.results;
         
-        //heroes = data.data.results;
-        //heroes.length = 4;
-        //console.log(heroes)
-        
         setData(data.data);
       });
     });
-
-
-
-
 
   return (
     <div className="App">
