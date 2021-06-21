@@ -2,12 +2,14 @@ import React, {useState, useEffect} from 'react';
 import './App.css';
 import md5 from 'md5';
 
+import datas from './datas.json';
+
 import AppHeader from './components/header/AppHeader';
 import AppBody from './components/body/AppBody';
 
 const App = () => {
   
-  const publicKey = "2242cc6f32e69d98626e3fbc48690ce0";
+  const publicKey = "cd11f3d4c0526e9ec4d5473d710950d3";
   const privateKey = process.env.REACT_APP_PRIVATE_KEY;
 
   const baseUrl = "http://gateway.marvel.com/v1/public/characters";
@@ -29,16 +31,24 @@ const App = () => {
       .then(response => response.json())
       .then(data => {
 
+        console.log(data);
+
+        if (data.code === "RequestThrottled") {
+          //setData(datas.data);
+          console.log(datas);
+        }
+        else {
         // available:
         // data.data.offset;
         // data.data.limit;
         // data.dara.total;
         // data.data.count;
         // data.data.results;
-        
+        console.log(data.data);
         setData(data.data);
+        }
       });
-    });
+    }, []);
 
   return (
     <div className="App">
