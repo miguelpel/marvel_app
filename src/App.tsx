@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import './App.css';
 import md5 from 'md5';
 
@@ -35,27 +35,16 @@ const App = () => {
     setPrivateKey(key);
   }
 
-  useEffect(() => {
-    fetchAllCharacters()
-    .then((response: any) => {
-      console.log(response);
-      setAllCharacterList(response);
-      setBodyLoading(false);
-    });
-  }, [privateKey, fetchAllCharacters]);
-
-  function fetchAllCharacters(
-    url = baseUrl,
-    limit = 100,
+  const fetchAllCharacters = (
     count = 0,
     total = 0,
     response: any[] = []
-  ): any {
+  ): any => {
     if (!bodyLoading) setBodyLoading(true);
     const timestamp = new Date().getTime();
     const hash = md5(timestamp + (privateKey ? privateKey : "") + publicKey);
     const auth = `&ts=${timestamp}&apikey=${publicKey}&hash=${hash}`;
-    return fetch(`${baseUrl}?limit=${limit}&offset=${count}${auth}`) // Append the page number to the base URL
+    return fetch(`${baseUrl}?limit=100&offset=${count}${auth}`) // Append the page number to the base URL
       .then(response => response.json())
       .then(data => {
         total = data?.data?.total;
@@ -72,11 +61,25 @@ const App = () => {
           })
         };
         if (count < total) {
-          return fetchAllCharacters(url, limit, count, total, response);
+          return fetchAllCharacters( count, total, response);
         }
         return response;
       });
   }
+
+  // change fetchAll into a promise, and return this promise.
+  //const fetchAllCharactersCallBack = useCallback(() => {
+  //  return fetchAllCharacters;
+  //}, [])
+  
+  useEffect(() => {
+    fetchAllCharacters()
+    .then((response: any) => {
+      console.log(response);
+      setAllCharacterList(response);
+      setBodyLoading(false);
+    });
+  }, [privateKey]);
 
 //////////////////////////////////////
 //useEffect(() => {
