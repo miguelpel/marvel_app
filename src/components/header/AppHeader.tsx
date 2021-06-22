@@ -23,7 +23,6 @@ const AppHeader = ({filterCharacters}: Props) => {
   const onInputChange = () => {
     const currentInput: any = textInput?.current ?  textInput?.current : null;
     if (currentInput !== null) {
-      const value = currentInput.value;
       launchResearch();
     }
   }

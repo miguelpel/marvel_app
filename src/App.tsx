@@ -17,7 +17,7 @@ const App = () => {
 
   const baseUrl = "http://gateway.marvel.com/v1/public/characters";
 
-  const query = `?limit=${100}&offset=${0}`;
+  //const query = `?limit=${100}&offset=${0}`;
 
   // keep a list of characters / ids / description, and thumbnail? Allowing for a research on names
   const [allCharacterList, setAllCharacterList] = useState<any[]>([]);
@@ -42,7 +42,7 @@ const App = () => {
       setAllCharacterList(response);
       setBodyLoading(false);
     });
-  }, [privateKey]);
+  }, [privateKey, fetchAllCharacters]);
 
   function fetchAllCharacters(
     url = baseUrl,
