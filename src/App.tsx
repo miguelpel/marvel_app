@@ -2,58 +2,156 @@ import React, {useState, useEffect} from 'react';
 import './App.css';
 import md5 from 'md5';
 
-import datas from './datas.json';
-
 import AppHeader from './components/header/AppHeader';
 import AppBody from './components/body/AppBody';
+import PrivateKeyModal from './components/PrivateKeyModal';
+
+import tempData from './datas.json';
 
 const App = () => {
   
   const publicKey = "cd11f3d4c0526e9ec4d5473d710950d3";
-  const privateKey = process.env.REACT_APP_PRIVATE_KEY;
+  // const privateKey = process.env.REACT_APP_PRIVATE_KEY;
+
+  const[privateKey, setPrivateKey] = useState<string | null>(null)
 
   const baseUrl = "http://gateway.marvel.com/v1/public/characters";
 
-  const query = `?limit=${100}&offset=${27}&nameStartsWith=${"i"}`;
+  const query = `?limit=${100}&offset=${0}`;
 
-  const timestamp = new Date().getTime();
+  // keep a list of characters / ids / description, and thumbnail? Allowing for a research on names
+  const [allCharacterList, setAllCharacterList] = useState<any[]>([]);
+  // refined list when there's a name-based research
+  const [refinedCharacterList, setRefinedCharacterList] = useState<any[]>([]);
 
-  const hash = md5(timestamp + (privateKey ? privateKey : "") + publicKey);
+  // Unique character for the unique character page
+  const [uniqueCharacter, setUniqueCharacter] = useState<any>();
 
-  const auth = `&ts=${timestamp}&apikey=${publicKey}&hash=${hash}`;
+  // Loader and pagination datas
+  const [bodyLoading, setBodyLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const url = `${baseUrl}${query}${auth}`;
+  const recordPrivateKey = (key: string) => {
+    setPrivateKey(key);
+  }
 
-  const [data, setData] = useState({});
-   
-    useEffect(() => {
-      fetch(url)
+  useEffect(() => {
+    fetchAllCharacters()
+    .then((response: any) => {
+      console.log(response);
+      setAllCharacterList(response);
+      setBodyLoading(false);
+    });
+  }, [privateKey]);
+
+  function fetchAllCharacters(
+    url = baseUrl,
+    limit = 100,
+    count = 0,
+    total = 0,
+    response: any[] = []
+  ): any {
+    if (!bodyLoading) setBodyLoading(true);
+    const timestamp = new Date().getTime();
+    const hash = md5(timestamp + (privateKey ? privateKey : "") + publicKey);
+    const auth = `&ts=${timestamp}&apikey=${publicKey}&hash=${hash}`;
+    return fetch(`${baseUrl}?limit=${limit}&offset=${count}${auth}`) // Append the page number to the base URL
       .then(response => response.json())
       .then(data => {
-
-        console.log(data);
-
-        if (data.code === "RequestThrottled") {
-          //setData(datas.data);
-          console.log(datas);
+        total = data?.data?.total;
+        count += data?.data?.count;
+        if (data?.data?.results) {
+          data.data.results.forEach((char: any) => {
+            const charObject = {
+              id: char.id,
+              name: char.name,
+              description: char.description,
+              thumbnail: char.thumbnail
+            }
+              response.push(charObject);
+          })
+        };
+        if (count < total) {
+          return fetchAllCharacters(url, limit, count, total, response);
         }
-        else {
-        // available:
-        // data.data.offset;
-        // data.data.limit;
-        // data.dara.total;
-        // data.data.count;
-        // data.data.results;
-        console.log(data.data);
-        setData(data.data);
-        }
+        return response;
       });
-    }, []);
+  }
+
+//////////////////////////////////////
+//useEffect(() => {
+//  let results: any[] = [];
+//  tempData.data.results.forEach((char: any) => {
+//    const charObject = {
+//      id: char.id,
+//      name: char.name,
+//      description: char.description,
+//      thumbnail: char.thumbnail
+//    }
+//    results.push(charObject);
+//  });
+//  setAllCharacterList(results);
+//}, []);
+//////////////////////////////////
+
+  const filterCharacters = (research: string) => {
+    if (research.length > 2) {
+      const newCharacterArray = allCharacterList.filter((character => character.name.toLowerCase().includes(research.toLowerCase())));
+      setRefinedCharacterList(newCharacterArray);
+    } else {
+      setRefinedCharacterList([]);
+    }
+  }
+
+  const selectCharacter = (characterObject: any) => {
+    setBodyLoading(true);
+    const timestamp = new Date().getTime();
+    const hash = md5(timestamp + (privateKey ? privateKey : "") + publicKey);
+    const auth = `&ts=${timestamp}&apikey=${publicKey}&hash=${hash}`;
+    fetch(`${baseUrl}/${characterObject.id}?${auth}`)
+      .then(response => response.json())
+      .then(data => {
+        const char = data.data.results[0];
+        setUniqueCharacter(char);
+        setBodyLoading(false);
+      })
+
+  }
+
+  const removeSelectedCharacter = () => {
+    setUniqueCharacter(null);
+  }
+
+  const changeCurrentPage = (numb: number) => {
+    const currentList = refinedCharacterList.length > 0 ? refinedCharacterList : allCharacterList;
+    let nextPage = currentPage + numb;
+    console.log("nextPage: " + nextPage);
+    if (nextPage <= 1) nextPage = 1;
+    console.log("nextPage: " + nextPage);
+    if (nextPage >= Math.ceil(currentList.length / 4)) nextPage = Math.ceil(currentList.length / 4);
+    console.log("nextPage: " + nextPage);
+    setCurrentPage(nextPage);
+  }
 
   return (
     <div className="App">
-      <AppHeader />
-      <AppBody data={data} /> 
+      {
+        privateKey
+        ? <>
+            <AppHeader filterCharacters={filterCharacters}/>
+            <AppBody
+              selectCharacter={selectCharacter}
+              removeSelectedCharacter={removeSelectedCharacter}
+              uniqueCharacter={uniqueCharacter}
+              loading={bodyLoading}
+              characterList={refinedCharacterList.length > 0 ? refinedCharacterList : allCharacterList}
+              currentPage={currentPage}
+              setPage={changeCurrentPage}
+            />
+        </>
+        : <PrivateKeyModal recordPrivateKey={recordPrivateKey} />
+      }
+ 
     </div>
   );
 }

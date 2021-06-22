@@ -4,3 +4,15 @@
     border-width: 0px 2px 2px 2px;
     padding: 10px 20px;
 }
+
+.pages_controller {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.loaderBody {
+    width: 100%;
+    display: flex;
+    justify-content: center; 
+}
