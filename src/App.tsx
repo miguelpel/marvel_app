@@ -6,7 +6,7 @@ import AppHeader from './components/header/AppHeader';
 import AppBody from './components/body/AppBody';
 import PrivateKeyModal from './components/PrivateKeyModal';
 
-import tempData from './datas.json';
+//import tempData from './datas.json';
 
 const App = () => {
   
