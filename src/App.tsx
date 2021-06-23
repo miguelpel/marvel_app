@@ -35,42 +35,43 @@ const App = () => {
     setPrivateKey(key);
   }
 
-  const fetchAllCharacters = (
-    count = 0,
-    total = 0,
-    response: any[] = []
-  ): any => {
-    if (!bodyLoading) setBodyLoading(true);
-    const timestamp = new Date().getTime();
-    const hash = md5(timestamp + (privateKey ? privateKey : "") + publicKey);
-    const auth = `&ts=${timestamp}&apikey=${publicKey}&hash=${hash}`;
-    return fetch(`${baseUrl}?limit=100&offset=${count}${auth}`) // Append the page number to the base URL
-      .then(response => response.json())
-      .then(data => {
-        total = data?.data?.total;
-        count += data?.data?.count;
-        if (data?.data?.results) {
-          data.data.results.forEach((char: any) => {
-            const charObject = {
-              id: char.id,
-              name: char.name,
-              description: char.description,
-              thumbnail: char.thumbnail
-            }
-              response.push(charObject);
-          })
-        };
-        if (count < total) {
-          return fetchAllCharacters( count, total, response);
-        }
-        return response;
-      });
-  }
-
-  const fetchAllCharactersCallBack = useCallback(fetchAllCharacters, [privateKey])
+  //const fetchAllCharactersCallBack = useCallback(fetchAllCharacters, [])
   
   useEffect(() => {
-    fetchAllCharactersCallBack()
+
+    const fetchAllCharacters = (
+      count = 0,
+      total = 0,
+      response: any[] = []
+    ): any => {
+      if (!bodyLoading) setBodyLoading(true);
+      const timestamp = new Date().getTime();
+      const hash = md5(timestamp + (privateKey ? privateKey : "") + publicKey);
+      const auth = `&ts=${timestamp}&apikey=${publicKey}&hash=${hash}`;
+      return fetch(`${baseUrl}?limit=100&offset=${count}${auth}`) // Append the page number to the base URL
+        .then(response => response.json())
+        .then(data => {
+          total = data?.data?.total;
+          count += data?.data?.count;
+          if (data?.data?.results) {
+            data.data.results.forEach((char: any) => {
+              const charObject = {
+                id: char.id,
+                name: char.name,
+                description: char.description,
+                thumbnail: char.thumbnail
+              }
+                response.push(charObject);
+            })
+          };
+          if (count < total) {
+            return fetchAllCharacters( count, total, response);
+          }
+          return response;
+        });
+    }
+
+    fetchAllCharacters()
     .then((response: any) => {
       console.log(response);
       setAllCharacterList(response);
