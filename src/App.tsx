@@ -67,13 +67,10 @@ const App = () => {
       });
   }
 
-  // change fetchAll into a promise, and return this promise.
-  //const fetchAllCharactersCallBack = useCallback(() => {
-  //  return fetchAllCharacters;
-  //}, [])
+  const fetchAllCharactersCallBack = useCallback(fetchAllCharacters, [privateKey])
   
   useEffect(() => {
-    fetchAllCharacters()
+    fetchAllCharactersCallBack()
     .then((response: any) => {
       console.log(response);
       setAllCharacterList(response);
