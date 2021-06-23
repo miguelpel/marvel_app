@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
 import './App.css';
 import md5 from 'md5';
 
@@ -37,14 +37,13 @@ const App = () => {
 
   //const fetchAllCharactersCallBack = useCallback(fetchAllCharacters, [])
   
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-
     const fetchAllCharacters = (
       count = 0,
       total = 0,
       response: any[] = []
     ): any => {
-      if (!bodyLoading) setBodyLoading(true);
       const timestamp = new Date().getTime();
       const hash = md5(timestamp + (privateKey ? privateKey : "") + publicKey);
       const auth = `&ts=${timestamp}&apikey=${publicKey}&hash=${hash}`;
@@ -75,7 +74,6 @@ const App = () => {
     .then((response: any) => {
       console.log(response);
       setAllCharacterList(response);
-      setBodyLoading(false);
     });
   }, [privateKey]);
 
@@ -144,7 +142,7 @@ const App = () => {
               selectCharacter={selectCharacter}
               removeSelectedCharacter={removeSelectedCharacter}
               uniqueCharacter={uniqueCharacter}
-              loading={bodyLoading}
+              loading={allCharacterList.length === 0 || bodyLoading}
               characterList={refinedCharacterList.length > 0 ? refinedCharacterList : allCharacterList}
               currentPage={currentPage}
               setPage={changeCurrentPage}
